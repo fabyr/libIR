@@ -1,5 +1,6 @@
 #include "fft.h"
 #include "math.h"
+#include <math.h>
 #include <string.h>
 
 void fft_to_buffer(fft_direction dir, uint8_t m, complex data[], complex output[])
@@ -12,7 +13,7 @@ void fft(fft_direction dir, uint8_t m, complex data[])
 {
     int32_t n, i, i1, j, k, i2, l, l1, l2;
     float c1, c2, tx, ty, t1, t2, u1, u2, z, inv_n;
-
+    
     // Calculate the number of points
     n = 1 << m;
     inv_n = 1.0f / n;
@@ -67,8 +68,8 @@ void fft(fft_direction dir, uint8_t m, complex data[])
             u2 = u1 * c2 + u2 * c1;
             u1 = z;
         }
-        c2 = sqrtf((1.0f - c1) / 2.0f) * dir;
-        c1 = sqrtf((1.0f + c1) / 2.0f);
+        c2 = sqrtf((1.0f - c1) * 0.5f) * dir;
+        c1 = sqrtf((1.0f + c1) * 0.5f);
     }
 
     // Scaling for forward transform 
