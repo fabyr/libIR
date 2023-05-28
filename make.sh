@@ -1,7 +1,5 @@
 #!/bin/bash
 
-
-
 LIBTORCH="/home/fabyr/Desktop/libIR/libtorch"
 
 rm -rf build

@@ -22,9 +22,11 @@ convolve_data create_convolve_data(int32_t block_size, size_t ir_samples)
     result.x_tdl = malloc(sizeof(complex) * result.fft_n);
     memset(result.x_tdl, 0, sizeof(complex) * result.fft_n);
     result.y_fft = malloc(sizeof(complex) * result.fft_n);
+    memset(result.y_fft, 0, sizeof(complex) * result.fft_n);
     result.n_blocks_ir = ir_samples / result.block_size;
     size_t sz = result.fft_n * result.n_blocks_ir;
     result.x_fdl = malloc(sizeof(complex) * sz);
+    memset(result.x_fdl, 0, sizeof(complex) * sz);
     /*for(size_t i = 0; i < sz; i++)
     {
         result.x_fdl[i].X = NAN;

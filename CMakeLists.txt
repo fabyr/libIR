@@ -4,7 +4,9 @@ project(libIR
     DESCRIPTION "libIR"
     LANGUAGES C CXX)
 
-find_package(Torch REQUIRED)
+if(DEFINED ENV{NN})
+    find_package(Torch REQUIRED)
+endif()
 
 file(GLOB_RECURSE libIR_SRC
      "src/*.h"
@@ -14,6 +16,10 @@ file(GLOB_RECURSE libIR_SRC
 )
 
 add_library(IR SHARED ${libIR_SRC})
+
+if(DEFINED ENV{NN})
+    target_compile_definitions(IR PRIVATE NN)
+endif()
 
 target_link_libraries(IR m stdc++)
 target_link_libraries(IR "${TORCH_LIBRARIES}")

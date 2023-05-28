@@ -1,3 +1,4 @@
+#ifdef NN
 #include "nn.hpp"
 #include <ATen/core/TensorBody.h>
 #include <c10/core/DeviceType.h>
@@ -45,3 +46,4 @@ extern "C" void forward_nn(float* input, int32_t in_n, float* output, int32_t ou
     torch::Tensor t2 = module->forward(t1_batch).toTensor().to(torch::kCPU);
     std::copy_n(t2.contiguous().data_ptr<float>(), out_n, output);
 }
+#endif
