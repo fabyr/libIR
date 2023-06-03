@@ -82,3 +82,17 @@ void fft(fft_direction dir, uint8_t m, complex data[])
         }
     }
 }
+
+void fft_combine_2(complex a[], complex b[], complex c[], int32_t N)
+{
+    const float j = 2.0f;
+    for(int32_t k = 0; k < N; k++)
+    {
+        int32_t km = k % (N/2);
+        float e = -((j * 2.0f * M_PI * k) / (N));
+        complex o;
+        o.X = cosf(e);
+        o.Y = sinf(e);
+        c[k] = complex_add(a[km], complex_mul(o, b[km]));
+    }
+}

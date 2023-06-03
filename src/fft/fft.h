@@ -8,3 +8,5 @@ typedef enum {
 
 void fft(fft_direction dir, uint8_t m, complex data[]);
 void fft_to_buffer(fft_direction dir, uint8_t m, complex data[], complex output[]);
+
+void fft_combine_2(complex a[], complex b[], complex c[], int32_t N);
