@@ -4,6 +4,11 @@ project(libIR
     DESCRIPTION "libIR"
     LANGUAGES C CXX)
 
+find_package(PkgConfig REQUIRED)
+pkg_search_module(FFTW REQUIRED fftw3 IMPORTED_TARGET)
+
+link_libraries     (PkgConfig::FFTW)
+
 if(DEFINED ENV{NN})
     find_package(Torch REQUIRED)
 endif()
@@ -21,6 +26,5 @@ if(DEFINED ENV{NN})
     target_compile_definitions(IR PRIVATE NN)
 endif()
 
-target_link_libraries(IR m stdc++)
 target_link_libraries(IR "${TORCH_LIBRARIES}")
 set_property(TARGET IR PROPERTY CXX_STANDARD 14)

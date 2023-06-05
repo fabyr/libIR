@@ -1,45 +1,21 @@
 #include "util.h"
 
-inline complex complex_mul(complex a, complex b)
+inline void complex_mul_i(fftw_complex a, fftw_complex b)
 {
-    complex result;
-    result.X = (a.X * b.X - a.Y * b.Y);
-    result.Y = (a.X * b.Y + a.Y * b.X);
-    return result;
+    a[0] = (a[0] * b[0] - a[1] * b[1]);
+    a[1] = (a[0] * b[1] + a[1] * b[0]);
 }
 
-inline void complex_mul_i(complex* a, complex b)
+inline void complex_mul_real_i(fftw_complex a, float b)
 {
-    a->X = (a->X * b.X - a->Y * b.Y);
-    a->Y = (a->X * b.Y + a->Y * b.X);
+    a[0] *= b;
+    a[1] *= b;
 }
 
-inline void complex_mul_real_i(complex* a, float b)
+inline void complex_add_i(fftw_complex a, fftw_complex b)
 {
-    a->X *= b;
-    a->Y *= b;
-}
-
-inline complex complex_mul_real(complex a, float b)
-{
-    complex result;
-    result.X = a.X * b;
-    result.Y = a.Y * b;
-    return result;
-}
-
-inline complex complex_add(complex a, complex b)
-{
-    complex result;
-    result.X = a.X + b.X;
-    result.Y = a.Y + b.Y;
-    return result;
-}
-
-inline void complex_add_i(complex* a, complex b)
-{
-    a->X += b.X;
-    a->Y += b.Y;
+    a[0] += b[0];
+    a[1] += b[1];
 }
 
 int32_t pos_modulo(int32_t value, uint32_t m) {

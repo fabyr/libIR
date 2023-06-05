@@ -1,8 +1,12 @@
-#include "fft/fft.h"
+#include <fftw3.h>
 #include <math.h>
 #include <stddef.h>
+#include <stdint.h>
+#include "util.h"
 
-#define ALLOCATE_FFT_BUFFER   0b00000001
+typedef double _FLOAT_T;
+
+#define ALLOCATE_FFT_BUFFER 0b00000001
 
 typedef struct {
     int32_t* block_sizes;
@@ -20,6 +24,8 @@ typedef struct {
     int32_t* layer_size_array;
     int32_t* layer_sum_array;
     int32_t* layer_nblocks_array;
+    fftw_plan* forward_plans;
+    fftw_plan* backward_plans;
     int32_t entries;
 } convolve_fft_schedule;
 
@@ -38,11 +44,12 @@ typedef struct {
     int32_t blockbuffer_size;
     int32_t fftbuffer_size;
     int32_t x_fdl_layers;
-    complex* x_tdl;
-    complex* x_fdl;
-    complex* y_fft;
-    complex* y_buffer;
-    complex* ir_buffer_fft;
+    fftw_complex* x_tdl;
+    fftw_complex* x_fdl;
+    fftw_complex* fft_buffer_in;
+    fftw_complex* fft_buffer_out;
+    fftw_complex* y_buffer;
+    fftw_complex* ir_buffer_fft;
     int32_t flags;
     //int32_t x_tdl_at;
     int32_t x_fdl_at;
@@ -52,10 +59,10 @@ typedef struct {
 convolve_data create_convolve_data(convolve_schedule schedule, int32_t ir_samples, int32_t flags);
 void free_convolve_data(convolve_data* data);
 
-void block_convolve(convolve_data* data, complex ir_fft[], complex sig[], complex out[]);
-void block_convolve_fft(convolve_data* data, complex ir[], complex sig[], complex out[]);
+void block_convolve(convolve_data* data, fftw_complex ir_fft[], fftw_complex sig[], fftw_complex out[]);
+void block_convolve_fft(convolve_data* data, fftw_complex ir[], fftw_complex sig[], fftw_complex out[]);
 
-void ir_fft(convolve_data* data, complex ir[], complex ir_fft[]);
+void ir_fft(convolve_data* data, fftw_complex ir[], fftw_complex ir_fft[]);
 
-void convolve_all(convolve_schedule schedule, complex ir[], complex sig[], complex out[], int32_t ir_n, int32_t sig_n);
-void convolve_all_fft(convolve_schedule schedule, complex ir[], complex sig[], complex out[], int32_t ir_n, int32_t sig_n);
+void convolve_all(convolve_schedule schedule, fftw_complex ir[], fftw_complex sig[], fftw_complex out[], int32_t ir_n, int32_t sig_n);
+void convolve_all_fft(convolve_schedule schedule, fftw_complex ir[], fftw_complex sig[], fftw_complex out[], int32_t ir_n, int32_t sig_n);
