@@ -186,8 +186,8 @@ void block_convolve(convolve_data* data, complex ir_fft[], complex sig[], comple
                 {
                     sh = 0;
                     shi = 0;
-                }
-                if(i == 1)
+                } 
+                else if(i == 1)
                 {
                     sh = 1;
                     shi = -1;
@@ -276,8 +276,8 @@ void block_convolve_fft(convolve_data* data, complex ir[], complex sig[], comple
                 {
                     sh = 0;
                     shi = 0;
-                }
-                if(i == 1)
+                } 
+                else if(i == 1)
                 {
                     sh = 1;
                     shi = -1;
@@ -300,10 +300,6 @@ void block_convolve_fft(convolve_data* data, complex ir[], complex sig[], comple
                     layer_x_fdl += data->in_block_size;
                 }
                 fft(FFT_FORWARD, layer_fft_n_log2, layer_x_fdl - layer_fft_n);
-
-                {
-
-                }
             }
             
             complex* y_buffer_at = data->y_buffer + o3;
@@ -324,7 +320,7 @@ void block_convolve_fft(convolve_data* data, complex ir[], complex sig[], comple
                     int32_t bsz = data->schedule.block_size_array[block];
                     memcpy(ir_fft_shifted, ir + data->schedule.block_size_sum_array[block], bsz * sizeof(complex));
                     memset(ir_fft_shifted + bsz, 0, bsz * sizeof(complex));
-                    fft(FFT_FORWARD, data->schedule.fft_n_log2_array[block], ir_fft_shifted);
+                    fft(FFT_FORWARD, layer_fft_n_log2, ir_fft_shifted);
                     
                     for(int32_t j = 0; j < layer_fft_n; j++)
                     {
