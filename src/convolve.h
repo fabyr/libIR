@@ -1,12 +1,11 @@
-#include <fftw3.h>
+#include "standard.h"
 #include <math.h>
 #include <stddef.h>
 #include <stdint.h>
 #include "util.h"
 
-typedef double _FLOAT_T;
-
 #define ALLOCATE_FFT_BUFFER 0b00000001
+#define FFTW_FLAG_MEASURE   0b00000010
 
 typedef struct {
     int32_t* block_sizes;
@@ -64,5 +63,5 @@ void block_convolve_fft(convolve_data* data, fftw_complex ir[], fftw_complex sig
 
 void ir_fft(convolve_data* data, fftw_complex ir[], fftw_complex ir_fft[]);
 
-void convolve_all(convolve_schedule schedule, fftw_complex ir[], fftw_complex sig[], fftw_complex out[], int32_t ir_n, int32_t sig_n);
-void convolve_all_fft(convolve_schedule schedule, fftw_complex ir[], fftw_complex sig[], fftw_complex out[], int32_t ir_n, int32_t sig_n);
+void convolve_all(convolve_schedule schedule, fftw_complex ir[], fftw_complex sig[], fftw_complex out[], int32_t ir_n, int32_t sig_n, int32_t flags);
+void convolve_all_fft(convolve_schedule schedule, fftw_complex ir[], fftw_complex sig[], fftw_complex out[], int32_t ir_n, int32_t sig_n, int32_t flags);

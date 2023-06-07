@@ -2,8 +2,9 @@
 
 inline void complex_mul_i(fftw_complex a, fftw_complex b)
 {
+    ___FLOAT_T areTmp = a[0];
     a[0] = (a[0] * b[0] - a[1] * b[1]);
-    a[1] = (a[0] * b[1] + a[1] * b[0]);
+    a[1] = (areTmp * b[1] + a[1] * b[0]);
 }
 
 inline void complex_mul_real_i(fftw_complex a, float b)
