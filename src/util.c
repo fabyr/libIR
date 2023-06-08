@@ -1,19 +1,19 @@
 #include "util.h"
 
-inline void complex_mul_i(fftw_complex a, fftw_complex b)
+inline void complex_mul_i(IR_COMPLEX_T a, IR_COMPLEX_T b)
 {
-    ___FLOAT_T areTmp = a[0];
+    IR_FLOAT_T areTmp = a[0];
     a[0] = (a[0] * b[0] - a[1] * b[1]);
     a[1] = (areTmp * b[1] + a[1] * b[0]);
 }
 
-inline void complex_mul_real_i(fftw_complex a, float b)
+inline void complex_mul_real_i(IR_COMPLEX_T a, IR_FLOAT_T b)
 {
     a[0] *= b;
     a[1] *= b;
 }
 
-inline void complex_add_i(fftw_complex a, fftw_complex b)
+inline void complex_add_i(IR_COMPLEX_T a, IR_COMPLEX_T b)
 {
     a[0] += b[0];
     a[1] += b[1];

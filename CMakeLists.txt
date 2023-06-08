@@ -5,13 +5,14 @@ project(libIR
     LANGUAGES C CXX)
 
 find_package(PkgConfig REQUIRED)
-pkg_search_module(FFTW REQUIRED fftw3 IMPORTED_TARGET)
+
+if(DEFINED ENV{SINGLE_PRECISION})
+    pkg_search_module(FFTW REQUIRED fftw3f IMPORTED_TARGET)
+else()
+    pkg_search_module(FFTW REQUIRED fftw3 IMPORTED_TARGET)
+endif()
 
 link_libraries     (PkgConfig::FFTW)
-
-if(DEFINED ENV{NN})
-    find_package(Torch REQUIRED)
-endif()
 
 file(GLOB_RECURSE libIR_SRC
      "src/*.h"
@@ -22,8 +23,8 @@ file(GLOB_RECURSE libIR_SRC
 
 add_library(IR SHARED ${libIR_SRC})
 
-if(DEFINED ENV{NN})
-    target_compile_definitions(IR PRIVATE NN)
+if(DEFINED ENV{SINGLE_PRECISION})
+    target_compile_definitions(IR PRIVATE SINGLE_PRECISION)
 endif()
 
 target_link_libraries(IR "${TORCH_LIBRARIES}")

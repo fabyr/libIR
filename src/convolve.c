@@ -21,8 +21,8 @@ void free_convolve_data(convolve_data* data)
 
     for(int32_t i = 0; i < data->x_fdl_layers; i++)
     {
-        fftw_destroy_plan(data->schedule.forward_plans[i]);
-        fftw_destroy_plan(data->schedule.backward_plans[i]);
+        ir_fftw_destroy_plan(data->schedule.forward_plans[i]);
+        ir_fftw_destroy_plan(data->schedule.backward_plans[i]);
     }
 
     free(data->schedule.forward_plans);
@@ -31,8 +31,8 @@ void free_convolve_data(convolve_data* data)
     free(data->x_tdl);
     free(data->x_fdl);
     free(data->y_buffer);
-    fftw_free(data->fft_buffer_in);
-    fftw_free(data->fft_buffer_out);
+    ir_fftw_free(data->fft_buffer_in);
+    ir_fftw_free(data->fft_buffer_out);
     if((data->flags & ALLOCATE_FFT_BUFFER) > 0)
     {
         free(data->ir_buffer_fft);
@@ -77,8 +77,8 @@ convolve_data create_convolve_data(convolve_schedule schedule, int32_t ir_sample
     fft_schedule.layer_sum_array = (int32_t*)malloc(sizeof(int32_t) * fft_schedule.entries);
     fft_schedule.layer_nblocks_array = (int32_t*)malloc(sizeof(int32_t) * fft_schedule.entries);
     
-    fft_schedule.forward_plans = (fftw_plan*)malloc(sizeof(fftw_plan) * fft_schedule.entries);
-    fft_schedule.backward_plans = (fftw_plan*)malloc(sizeof(fftw_plan) * fft_schedule.entries);
+    fft_schedule.forward_plans = (ir_fftw_plan*)malloc(sizeof(ir_fftw_plan) * fft_schedule.entries);
+    fft_schedule.backward_plans = (ir_fftw_plan*)malloc(sizeof(ir_fftw_plan) * fft_schedule.entries);
     
     int32_t bsz = -1, max_bsz = -1, max_bsz_log2 = -1, max_fftn = -1, max_fftn_log2 = -1;
     int32_t blockbuffersize = 0, fftbuffersize = 0;
@@ -159,16 +159,16 @@ convolve_data create_convolve_data(convolve_schedule schedule, int32_t ir_sample
     result.n_blocks_in_ir = blockbuffersize / result.in_block_size;
     result.x_fdl_layers = fdllayers;
     
-    result.x_tdl = (fftw_complex*)malloc(sizeof(fftw_complex) * result.in_block_size * result.n_blocks_in_ir);
-    memset(result.x_tdl, 0, sizeof(fftw_complex) * result.in_block_size * result.n_blocks_in_ir);
+    result.x_tdl = (IR_COMPLEX_T*)malloc(sizeof(IR_COMPLEX_T) * result.in_block_size * result.n_blocks_in_ir);
+    memset(result.x_tdl, 0, sizeof(IR_COMPLEX_T) * result.in_block_size * result.n_blocks_in_ir);
     
-    result.fft_buffer_in = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * result.max_fft_n);
-    result.fft_buffer_out = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * result.max_fft_n);
+    result.fft_buffer_in = (IR_COMPLEX_T*)ir_fftw_malloc(sizeof(IR_COMPLEX_T) * result.max_fft_n);
+    result.fft_buffer_out = (IR_COMPLEX_T*)ir_fftw_malloc(sizeof(IR_COMPLEX_T) * result.max_fft_n);
     
-    result.x_fdl = (fftw_complex*)malloc(sizeof(fftw_complex) * fdltotal * 2);
-    memset(result.x_fdl, 0, sizeof(fftw_complex) * fdltotal * 2);
-    result.y_buffer = (fftw_complex*)malloc(sizeof(fftw_complex) * fdlsingletotal * 2);
-    memset(result.y_buffer, 0, sizeof(fftw_complex) * fdlsingletotal * 2);
+    result.x_fdl = (IR_COMPLEX_T*)malloc(sizeof(IR_COMPLEX_T) * fdltotal * 2);
+    memset(result.x_fdl, 0, sizeof(IR_COMPLEX_T) * fdltotal * 2);
+    result.y_buffer = (IR_COMPLEX_T*)malloc(sizeof(IR_COMPLEX_T) * fdlsingletotal * 2);
+    memset(result.y_buffer, 0, sizeof(IR_COMPLEX_T) * fdlsingletotal * 2);
     
     uint32_t fftw_flag = FFTW_ESTIMATE;
     if((result.flags & FFTW_FLAG_MEASURE) > 0)
@@ -179,8 +179,8 @@ convolve_data create_convolve_data(convolve_schedule schedule, int32_t ir_sample
     for(int32_t i = 0; i < result.x_fdl_layers; i++)
     {
         // make plans
-        result.schedule.forward_plans[i] = fftw_plan_dft_1d((1 << fft_schedule.layer_size_array[i]) << 1, result.fft_buffer_in, result.fft_buffer_out, FFTW_FORWARD, fftw_flag);
-        result.schedule.backward_plans[i] = fftw_plan_dft_1d((1 << fft_schedule.layer_size_array[i]) << 1, result.fft_buffer_in, result.fft_buffer_out, FFTW_BACKWARD, fftw_flag);
+        result.schedule.forward_plans[i] = ir_fftw_plan_dft_1d((1 << fft_schedule.layer_size_array[i]) << 1, result.fft_buffer_in, result.fft_buffer_out, FFTW_FORWARD, fftw_flag);
+        result.schedule.backward_plans[i] = ir_fftw_plan_dft_1d((1 << fft_schedule.layer_size_array[i]) << 1, result.fft_buffer_in, result.fft_buffer_out, FFTW_BACKWARD, fftw_flag);
     }
 
     result.x_fdl_at = 0;
@@ -189,18 +189,18 @@ convolve_data create_convolve_data(convolve_schedule schedule, int32_t ir_sample
     
     if((result.flags & ALLOCATE_FFT_BUFFER) > 0)
     {
-        result.ir_buffer_fft = (fftw_complex*)malloc(sizeof(fftw_complex) * result.fftbuffer_size);
+        result.ir_buffer_fft = (IR_COMPLEX_T*)malloc(sizeof(IR_COMPLEX_T) * result.fftbuffer_size);
     }
     
     return result;
 }
 
-void block_convolve(convolve_data* data, fftw_complex ir_fft[], fftw_complex sig[], fftw_complex out[])
+void block_convolve(convolve_data* data, IR_COMPLEX_T ir_fft[], IR_COMPLEX_T sig[], IR_COMPLEX_T out[])
 {
-    fftw_complex* current_x_tdl_0 = data->x_tdl + pos_modulo(-data->x_fdl_at + 1, data->n_blocks_in_ir) * data->in_block_size; // + offset of 0
-    fftw_complex* current_x_tdl_1 = data->x_tdl + pos_modulo(-data->x_fdl_at, data->n_blocks_in_ir) * data->in_block_size; // + offset of 0
+    IR_COMPLEX_T* current_x_tdl_0 = data->x_tdl + pos_modulo(-data->x_fdl_at + 1, data->n_blocks_in_ir) * data->in_block_size; // + offset of 0
+    IR_COMPLEX_T* current_x_tdl_1 = data->x_tdl + pos_modulo(-data->x_fdl_at, data->n_blocks_in_ir) * data->in_block_size; // + offset of 0
     
-    memcpy(current_x_tdl_1, sig, data->in_block_size * sizeof(fftw_complex));
+    memcpy(current_x_tdl_1, sig, data->in_block_size * sizeof(IR_COMPLEX_T));
 
     int32_t o3 = 0;
     for(int32_t i = 0; i < data->x_fdl_layers; i++)
@@ -230,22 +230,22 @@ void block_convolve(convolve_data* data, fftw_complex ir_fft[], fftw_complex sig
                 }
 
                 int32_t o = pos_modulo((-data->x_fdl_at) / layer_denom + sh, data->schedule.layer_nblocks_array[i]);
-                fftw_complex* layer_x_fdl = data->x_fdl + o * layer_fft_n + data->schedule.layer_sum_array[i];
+                IR_COMPLEX_T* layer_x_fdl = data->x_fdl + o * layer_fft_n + data->schedule.layer_sum_array[i];
                 
                 for(int32_t i = 0; i < layer_denom * 2; i++)
                 {
-                    fftw_complex* x_tdl_i = data->x_tdl + pos_modulo(-data->x_fdl_at + (layer_denom * 2 - i) + shi, data->n_blocks_in_ir)
+                    IR_COMPLEX_T* x_tdl_i = data->x_tdl + pos_modulo(-data->x_fdl_at + (layer_denom * 2 - i) + shi, data->n_blocks_in_ir)
                                          * data->in_block_size; // + offset of 0
                     
-                    memcpy(data->fft_buffer_in + i * data->in_block_size, x_tdl_i, sizeof(fftw_complex) * data->in_block_size);
+                    memcpy(data->fft_buffer_in + i * data->in_block_size, x_tdl_i, sizeof(IR_COMPLEX_T) * data->in_block_size);
                 }
                 
-                fftw_execute(data->schedule.forward_plans[i]);
-                memcpy(layer_x_fdl, data->fft_buffer_out, sizeof(fftw_complex) * layer_fft_n);
+                ir_fftw_execute(data->schedule.forward_plans[i]);
+                memcpy(layer_x_fdl, data->fft_buffer_out, sizeof(IR_COMPLEX_T) * layer_fft_n);
             }
             
-            fftw_complex* y_buffer_at = data->y_buffer + o3;
-            memset(y_buffer_at, 0, sizeof(fftw_complex) * layer_fft_n);
+            IR_COMPLEX_T* y_buffer_at = data->y_buffer + o3;
+            memset(y_buffer_at, 0, sizeof(IR_COMPLEX_T) * layer_fft_n);
 
             int32_t baseblockoffset = 0;
             for(int32_t block = 0; block < data->schedule.entries; block++)
@@ -254,14 +254,14 @@ void block_convolve(convolve_data* data, fftw_complex ir_fft[], fftw_complex sig
                 if(layer_at == i)
                 {
                     //if(i != 2) continue;
-                    fftw_complex* ptr = (data->x_fdl + pos_modulo((-data->x_fdl_at + baseblockoffset) / layer_denom, data->schedule.layer_nblocks_array[i]) * layer_fft_n + data->schedule.layer_sum_array[layer_at]);
-                    fftw_complex* ir_fft_shifted = ir_fft + data->schedule.fft_n_sum_array[block];
+                    IR_COMPLEX_T* ptr = (data->x_fdl + pos_modulo((-data->x_fdl_at + baseblockoffset) / layer_denom, data->schedule.layer_nblocks_array[i]) * layer_fft_n + data->schedule.layer_sum_array[layer_at]);
+                    IR_COMPLEX_T* ir_fft_shifted = ir_fft + data->schedule.fft_n_sum_array[block];
 
-                    fftw_complex r;
+                    IR_COMPLEX_T r;
 
                     for(int32_t j = 0; j < layer_fft_n; j++)
                     {
-                        memcpy(r, ptr[j], sizeof(fftw_complex));
+                        memcpy(r, ptr[j], sizeof(IR_COMPLEX_T));
                         complex_mul_i(r, ir_fft_shifted[j]);
                         complex_add_i(y_buffer_at[j], r);
                     }
@@ -269,14 +269,14 @@ void block_convolve(convolve_data* data, fftw_complex ir_fft[], fftw_complex sig
                 
                 baseblockoffset += layer_denom;
             }
-            memcpy(data->fft_buffer_in, y_buffer_at, sizeof(fftw_complex) * layer_fft_n);
-            fftw_execute(data->schedule.backward_plans[i]);
-            memcpy(y_buffer_at, data->fft_buffer_out, sizeof(fftw_complex) * layer_fft_n);
+            memcpy(data->fft_buffer_in, y_buffer_at, sizeof(IR_COMPLEX_T) * layer_fft_n);
+            ir_fftw_execute(data->schedule.backward_plans[i]);
+            memcpy(y_buffer_at, data->fft_buffer_out, sizeof(IR_COMPLEX_T) * layer_fft_n);
         }
         {
-            fftw_complex* y_buffer_at = data->y_buffer + o3 + layer_fft_n / 2
+            IR_COMPLEX_T* y_buffer_at = data->y_buffer + o3 + layer_fft_n / 2
                                     + (data->x_fdl_at % layer_denom) * data->in_block_size;
-            ___FLOAT_T recip = 1.0/layer_fft_n;
+            IR_FLOAT_T recip = 1.0/layer_fft_n;
             for(int32_t j = 0; j < data->in_block_size; j++)
             {
                 complex_mul_real_i(y_buffer_at[j], recip);
@@ -291,12 +291,12 @@ void block_convolve(convolve_data* data, fftw_complex ir_fft[], fftw_complex sig
         data->x_fdl_at = 0;
 }
 
-void block_convolve_fft(convolve_data* data, fftw_complex ir[], fftw_complex sig[], fftw_complex out[])
+void block_convolve_fft(convolve_data* data, IR_COMPLEX_T ir[], IR_COMPLEX_T sig[], IR_COMPLEX_T out[])
 {
-    fftw_complex* current_x_tdl_0 = data->x_tdl + pos_modulo(-data->x_fdl_at + 1, data->n_blocks_in_ir) * data->in_block_size; // + offset of 0
-    fftw_complex* current_x_tdl_1 = data->x_tdl + pos_modulo(-data->x_fdl_at, data->n_blocks_in_ir) * data->in_block_size; // + offset of 0
+    IR_COMPLEX_T* current_x_tdl_0 = data->x_tdl + pos_modulo(-data->x_fdl_at + 1, data->n_blocks_in_ir) * data->in_block_size; // + offset of 0
+    IR_COMPLEX_T* current_x_tdl_1 = data->x_tdl + pos_modulo(-data->x_fdl_at, data->n_blocks_in_ir) * data->in_block_size; // + offset of 0
     
-    memcpy(current_x_tdl_1, sig, data->in_block_size * sizeof(fftw_complex));
+    memcpy(current_x_tdl_1, sig, data->in_block_size * sizeof(IR_COMPLEX_T));
 
     int32_t o3 = 0;
     for(int32_t i = 0; i < data->x_fdl_layers; i++)
@@ -326,22 +326,22 @@ void block_convolve_fft(convolve_data* data, fftw_complex ir[], fftw_complex sig
                 }
 
                 int32_t o = pos_modulo((-data->x_fdl_at) / layer_denom + sh, data->schedule.layer_nblocks_array[i]);
-                fftw_complex* layer_x_fdl = data->x_fdl + o * layer_fft_n + data->schedule.layer_sum_array[i];
+                IR_COMPLEX_T* layer_x_fdl = data->x_fdl + o * layer_fft_n + data->schedule.layer_sum_array[i];
                 
                 for(int32_t i = 0; i < layer_denom * 2; i++)
                 {
-                    fftw_complex* x_tdl_i = data->x_tdl + pos_modulo(-data->x_fdl_at + (layer_denom * 2 - i) + shi, data->n_blocks_in_ir)
+                    IR_COMPLEX_T* x_tdl_i = data->x_tdl + pos_modulo(-data->x_fdl_at + (layer_denom * 2 - i) + shi, data->n_blocks_in_ir)
                                          * data->in_block_size; // + offset of 0
                     
-                    memcpy(data->fft_buffer_in + i * data->in_block_size, x_tdl_i, sizeof(fftw_complex) * data->in_block_size);
+                    memcpy(data->fft_buffer_in + i * data->in_block_size, x_tdl_i, sizeof(IR_COMPLEX_T) * data->in_block_size);
                 }
-                fftw_execute(data->schedule.forward_plans[i]);
-                memcpy(layer_x_fdl, data->fft_buffer_out, sizeof(fftw_complex) * layer_fft_n);
+                ir_fftw_execute(data->schedule.forward_plans[i]);
+                memcpy(layer_x_fdl, data->fft_buffer_out, sizeof(IR_COMPLEX_T) * layer_fft_n);
                 //fft(FFT_FORWARD, layer_fft_n_log2, layer_x_fdl - layer_fft_n);
             }
             
-            fftw_complex* y_buffer_at = data->y_buffer + o3;
-            memset(y_buffer_at, 0, sizeof(fftw_complex) * layer_fft_n);
+            IR_COMPLEX_T* y_buffer_at = data->y_buffer + o3;
+            memset(y_buffer_at, 0, sizeof(IR_COMPLEX_T) * layer_fft_n);
 
             int32_t baseblockoffset = 0;
             for(int32_t block = 0; block < data->schedule.entries; block++)
@@ -350,21 +350,21 @@ void block_convolve_fft(convolve_data* data, fftw_complex ir[], fftw_complex sig
                 if(layer_at == i)
                 {
                     //if(i != 2) continue;
-                    fftw_complex* ptr = (data->x_fdl + pos_modulo((-data->x_fdl_at + baseblockoffset) / layer_denom, data->schedule.layer_nblocks_array[i]) * layer_fft_n + data->schedule.layer_sum_array[layer_at]);
-                    fftw_complex* ir_fft_shifted = data->ir_buffer_fft + data->schedule.fft_n_sum_array[block];
+                    IR_COMPLEX_T* ptr = (data->x_fdl + pos_modulo((-data->x_fdl_at + baseblockoffset) / layer_denom, data->schedule.layer_nblocks_array[i]) * layer_fft_n + data->schedule.layer_sum_array[layer_at]);
+                    IR_COMPLEX_T* ir_fft_shifted = data->ir_buffer_fft + data->schedule.fft_n_sum_array[block];
             
                     // ADDED IN FFT-ON-THE-FLY VARIANT
                     int32_t bsz = data->schedule.block_size_array[block];
-                    memcpy(data->fft_buffer_in, ir + data->schedule.block_size_sum_array[block], bsz * sizeof(fftw_complex));
-                    memset(data->fft_buffer_in + bsz, 0, bsz * sizeof(fftw_complex));
-                    fftw_execute(data->schedule.forward_plans[i]);
-                    memcpy(ir_fft_shifted, data->fft_buffer_out, sizeof(fftw_complex) * layer_fft_n);
+                    memcpy(data->fft_buffer_in, ir + data->schedule.block_size_sum_array[block], bsz * sizeof(IR_COMPLEX_T));
+                    memset(data->fft_buffer_in + bsz, 0, bsz * sizeof(IR_COMPLEX_T));
+                    ir_fftw_execute(data->schedule.forward_plans[i]);
+                    memcpy(ir_fft_shifted, data->fft_buffer_out, sizeof(IR_COMPLEX_T) * layer_fft_n);
 
-                    fftw_complex r;
+                    IR_COMPLEX_T r;
 
                     for(int32_t j = 0; j < layer_fft_n; j++)
                     {
-                        memcpy(r, ptr[j], sizeof(fftw_complex));
+                        memcpy(r, ptr[j], sizeof(IR_COMPLEX_T));
                         complex_mul_i(r, ir_fft_shifted[j]);
                         complex_add_i(y_buffer_at[j], r);
                     }
@@ -372,14 +372,14 @@ void block_convolve_fft(convolve_data* data, fftw_complex ir[], fftw_complex sig
                 
                 baseblockoffset += layer_denom;
             }
-            memcpy(data->fft_buffer_in, y_buffer_at, sizeof(fftw_complex) * layer_fft_n);
-            fftw_execute(data->schedule.backward_plans[i]);
-            memcpy(y_buffer_at, data->fft_buffer_out, sizeof(fftw_complex) * layer_fft_n);
+            memcpy(data->fft_buffer_in, y_buffer_at, sizeof(IR_COMPLEX_T) * layer_fft_n);
+            ir_fftw_execute(data->schedule.backward_plans[i]);
+            memcpy(y_buffer_at, data->fft_buffer_out, sizeof(IR_COMPLEX_T) * layer_fft_n);
         }
         {
-            fftw_complex* y_buffer_at = data->y_buffer + o3 + layer_fft_n / 2
+            IR_COMPLEX_T* y_buffer_at = data->y_buffer + o3 + layer_fft_n / 2
                                     + (data->x_fdl_at % layer_denom) * data->in_block_size;
-            ___FLOAT_T recip = 1.0/layer_fft_n;
+            IR_FLOAT_T recip = 1.0/layer_fft_n;
             for(int32_t i = 0; i < data->in_block_size; i++)
             {
                 complex_mul_real_i(y_buffer_at[i], recip);
@@ -394,27 +394,27 @@ void block_convolve_fft(convolve_data* data, fftw_complex ir[], fftw_complex sig
         data->x_fdl_at = 0;
 }
 
-void ir_fft(convolve_data* data, fftw_complex ir[], fftw_complex ir_fft[])
+void ir_fft(convolve_data* data, IR_COMPLEX_T ir[], IR_COMPLEX_T ir_fft[])
 {
     int32_t ir_fft_offset = 0, ir_offset = 0;
     for(int32_t i = 0; i < data->n_blocks_ir; i++)
     {
         int32_t bsz = data->schedule.block_size_array[i], fsz = data->schedule.fft_n_array[i];
-        memcpy(data->fft_buffer_in, ir + ir_offset, bsz * sizeof(fftw_complex));
-        memset(data->fft_buffer_in + bsz, 0, bsz * sizeof(fftw_complex));
-        fftw_execute(data->schedule.forward_plans[data->schedule.layer_array[i]]);
-        memcpy(ir_fft + ir_fft_offset, data->fft_buffer_out, sizeof(fftw_complex) * data->schedule.fft_n_array[i]);
+        memcpy(data->fft_buffer_in, ir + ir_offset, bsz * sizeof(IR_COMPLEX_T));
+        memset(data->fft_buffer_in + bsz, 0, bsz * sizeof(IR_COMPLEX_T));
+        ir_fftw_execute(data->schedule.forward_plans[data->schedule.layer_array[i]]);
+        memcpy(ir_fft + ir_fft_offset, data->fft_buffer_out, sizeof(IR_COMPLEX_T) * data->schedule.fft_n_array[i]);
         
         ir_fft_offset += fsz;
         ir_offset += bsz;
     }
 }
 
-void convolve_all(convolve_schedule schedule, fftw_complex ir[], fftw_complex sig[], fftw_complex out[], int32_t ir_n, int32_t sig_n, int32_t flags)
+void convolve_all(convolve_schedule schedule, IR_COMPLEX_T ir[], IR_COMPLEX_T sig[], IR_COMPLEX_T out[], int32_t ir_n, int32_t sig_n, int32_t flags)
 {
     convolve_data data = create_convolve_data(schedule, ir_n, flags);
     int32_t n_blocks_sig = sig_n / data.in_block_size;
-    fftw_complex* ir_buf = malloc(sizeof(fftw_complex) * data.fftbuffer_size);
+    IR_COMPLEX_T* ir_buf = malloc(sizeof(IR_COMPLEX_T) * data.fftbuffer_size);
     ir_fft(&data, ir, ir_buf);
     for(int32_t i = 0; i < n_blocks_sig; i++)
     {
@@ -425,7 +425,7 @@ void convolve_all(convolve_schedule schedule, fftw_complex ir[], fftw_complex si
     free_convolve_data(&data);
 }
 
-void convolve_all_fft(convolve_schedule schedule, fftw_complex ir[], fftw_complex sig[], fftw_complex out[], int32_t ir_n, int32_t sig_n, int32_t flags)
+void convolve_all_fft(convolve_schedule schedule, IR_COMPLEX_T ir[], IR_COMPLEX_T sig[], IR_COMPLEX_T out[], int32_t ir_n, int32_t sig_n, int32_t flags)
 {
     convolve_data data = create_convolve_data(schedule, ir_n, ALLOCATE_FFT_BUFFER | flags);
 
