@@ -1,6 +1,13 @@
 # libIR
 Small C-Library for performing convolution reverb
 
+## Table of contents
+1. [Building](#building)
+2. [Usage](#usage)
+3. [Overview of necessary steps](#overview-of-necessary-steps)
+4. [C#/Dotnet interop](#cdotnet-interop)
+
+
 ## Building
 System dependencies:
 - fftw3
@@ -15,8 +22,12 @@ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .. # export compile commands for clangd
 cmake --build . --config Release
 ```
 
+Building on windows is ideally done with MinGW/MSYS2. (see https://www.msys2.org/ and https://www.msys2.org/docs/cmake/)
+
+You can also use the provided `make-*.sh` scripts to build on linux or windows.
+
 ## Usage
-libIR performs a partitioned convolution.
+**libIR** performs a partitioned convolution.
 Create a `convolve_schedule` as follows:
 ```C
 // ... = { block_sizes, count_of_block_sizes }
@@ -25,8 +36,11 @@ convolve_schedule sched = { (int32_t[]){ 8192 }, 1 }; // Uniform block sizes
 convolve_schedule sched2 = { (int32_t[]){ 1024, 1024, 2048, 4096 }, 4 }; // Non-Uniform (Fully Partitioned) block sizes
 ```
 **NOTE:** When creating Non-Uniform convolve schedules, they always have to be of the form
-`{ x, x, 2 * x, 4 * x, 8 * x, ..., 2^(n - 2) * x }` where `n` is the total number of entries in the list and `x` must always be a power of 2. 
-If this is not the case, it may lead to wrong results and/or undefined behaviour of the program.
+`{ x, x, 2 * x, 4 * x, 8 * x, ..., 2^(n - 2) * x }` where `n` is the total number of entries in the list. `x` must always be a power of 2. 
+If any of those conditions is not met, it may lead to wrong results and/or undefined behaviour of the program.
+
+You may also not use any size greater than `16384`. As the precision limitations will
+return wrong results at anything beyond that value.
 
 Valid example schedules:
 ```
@@ -43,7 +57,8 @@ You always must feed audio blocks of that size to `block_convolve` or `block_con
 ## Overview of necessary steps
 ```C
 #include "convolve.h"
-
+// This may not be functional code
+// For demonstrative purposes
 int main(void)
 {
     int32_t num_impulse_response_samples;
@@ -89,12 +104,15 @@ int main(void)
 }
 ```
 
-**Note:** You may omit the part of preprocessing `complexIr` to `processedIr` if you specify the flag
+**Note:** You can omit the part of preprocessing `complexIr` to `processedIr` if you specify the flag
 `IR_ALLOCATE_FFT_BUFFER` when creating the `convolve_data`. Then you can directly pass `complexIr` to the block convolving routine. (You also have to use `block_convolve_fft` in that case instead of `block_convolve`).
 Specifying this flag will calculate the FFT of the impulse response as needed during convolution.
 This may however affect performance. Ideally, the impulse response only has to be processed this way once.
 
-## dotnet interop
+## C#/Dotnet interop
 You can also easily interop with this library from C#. (For example for use in game engines such as `Unity`)
 
-Add [LibIR.cs](/LibIR.cs) to your project and use the `Convolver`-class from the namespace `LibIR`.
+Add [LibIR.cs](/LibIR.cs) to your project and use the `Convolver`-class from the namespace `LibIR`. Or add a project reference to `libirsharp.csproj`.
+Make sure the C#-Application can find the compiled native C library.
+
+Refer to [Program.cs](/libirsharp.examples/Program.cs) for a demonstrative example.
