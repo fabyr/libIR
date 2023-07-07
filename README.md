@@ -93,3 +93,8 @@ int main(void)
 `IR_ALLOCATE_FFT_BUFFER` when creating the `convolve_data`. Then you can directly pass `complexIr` to the block convolving routine. (You also have to use `block_convolve_fft` in that case instead of `block_convolve`).
 Specifying this flag will calculate the FFT of the impulse response as needed during convolution.
 This may however affect performance. Ideally, the impulse response only has to be processed this way once.
+
+## dotnet interop
+You can also easily interop with this library from C#. (For example for use in game engines such as `Unity`)
+
+Add [LibIR.cs](/LibIR.cs) to your project and use the `Convolver`-class from the namespace `LibIR`.
