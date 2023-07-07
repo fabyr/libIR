@@ -3,3 +3,4 @@ dotnettest/
 .cache/
 bin/
 obj/
+.vscode/
