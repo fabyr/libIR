@@ -33,7 +33,7 @@ void free_convolve_data(convolve_data* data)
     free(data->y_buffer);
     ir_fftw_free(data->fft_buffer_in);
     ir_fftw_free(data->fft_buffer_out);
-    if((data->flags & ALLOCATE_FFT_BUFFER) > 0)
+    if((data->flags & IR_ALLOCATE_FFT_BUFFER) > 0)
     {
         free(data->ir_buffer_fft);
     }
@@ -171,7 +171,7 @@ convolve_data create_convolve_data(convolve_schedule schedule, int32_t ir_sample
     memset(result.y_buffer, 0, sizeof(IR_COMPLEX_T) * fdlsingletotal * 2);
     
     uint32_t fftw_flag = FFTW_ESTIMATE;
-    if((result.flags & FFTW_FLAG_MEASURE) > 0)
+    if((result.flags & IR_FFTW_FLAG_MEASURE) > 0)
     {
         fftw_flag = FFTW_MEASURE;
     }
@@ -187,7 +187,7 @@ convolve_data create_convolve_data(convolve_schedule schedule, int32_t ir_sample
     result.y_fdl_at = 0; // only used in time-variant version
     result.flags = flags;
     
-    if((result.flags & ALLOCATE_FFT_BUFFER) > 0)
+    if((result.flags & IR_ALLOCATE_FFT_BUFFER) > 0)
     {
         result.ir_buffer_fft = (IR_COMPLEX_T*)malloc(sizeof(IR_COMPLEX_T) * result.fftbuffer_size);
     }
@@ -428,7 +428,7 @@ void convolve_all(convolve_schedule schedule, IR_COMPLEX_T ir[], IR_COMPLEX_T si
 
 void convolve_all_fft(convolve_schedule schedule, IR_COMPLEX_T ir[], IR_COMPLEX_T sig[], IR_COMPLEX_T out[], int32_t ir_n, int32_t sig_n, int32_t flags)
 {
-    convolve_data data = create_convolve_data(schedule, ir_n, ALLOCATE_FFT_BUFFER | flags);
+    convolve_data data = create_convolve_data(schedule, ir_n, IR_ALLOCATE_FFT_BUFFER | flags);
 
     int32_t n_blocks_sig = sig_n / data.in_block_size;
     for(int32_t i = 0; i < n_blocks_sig; i++)

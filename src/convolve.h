@@ -4,8 +4,9 @@
 #include <stdint.h>
 #include "util.h"
 
-#define ALLOCATE_FFT_BUFFER 0b00000001
-#define FFTW_FLAG_MEASURE   0b00000010
+#define IR_NO_FLAGS            0b00000000
+#define IR_ALLOCATE_FFT_BUFFER 0b00000001
+#define IR_FFTW_FLAG_MEASURE   0b00000010
 
 typedef struct {
     int32_t* block_sizes;
@@ -50,7 +51,6 @@ typedef struct {
     IR_COMPLEX_T* y_buffer;
     IR_COMPLEX_T* ir_buffer_fft;
     int32_t flags;
-    //int32_t x_tdl_at;
     int32_t x_fdl_at;
     int32_t y_fdl_at;
 } convolve_data;
