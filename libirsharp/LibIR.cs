@@ -10,7 +10,7 @@ namespace LibIR
 
     public class Convolver
     {
-        private Complex[] ir;
+        public Complex[] IR { get; }
         private Complex[]? irFft = null;
 
         private ConvolveData _data;
@@ -27,9 +27,9 @@ namespace LibIR
                 throw new ArgumentException("invalid schedule", "schedule");
             this.schedule = schedule;
 
-            ir = new Complex[impulseResponse.Length];
-            for(int i = 0; i < ir.Length; i++)
-                ir[i].X = impulseResponse[i];
+            IR = new Complex[impulseResponse.Length];
+            for(int i = 0; i < IR.Length; i++)
+                IR[i].X = impulseResponse[i];
 
             GCHandle scheduleHandle = GCHandle.Alloc(schedule, GCHandleType.Pinned);
             ConvolveSchedule structSchedule = new ConvolveSchedule()
@@ -46,6 +46,11 @@ namespace LibIR
             }
         }
 
+        private static bool IsPow2(int x)
+        {
+            return x > 0 && (x & (x - 1)) == 0;
+        }
+
         public static bool ValidateSchedule(int[] schedule)
         {
             if(schedule.Length == 0)
@@ -53,16 +58,18 @@ namespace LibIR
             if(schedule.Length == 1)
                 return true;
             int baseBlockSize = schedule[0];
+            if(!IsPow2(baseBlockSize))
+                return false;
             bool valid = true;
             for(int i = 1; i < schedule.Length; i++)
-                valid &= schedule[i] == baseBlockSize * (1 << (i - 1));
+                valid &= schedule[i] == baseBlockSize * (1 << (i - 1)) && IsPow2(schedule[i]);
             return valid;
         }
 
         private void PreprocessFft()
         {
             irFft = new Complex[_data.fftbuffer_size];
-            GCHandle irHandle = GCHandle.Alloc(ir, GCHandleType.Pinned);
+            GCHandle irHandle = GCHandle.Alloc(IR, GCHandleType.Pinned);
             GCHandle irFftHandle = GCHandle.Alloc(irFft, GCHandleType.Pinned);
 
             LibIRCore.IrFft(ref _data, irHandle.AddrOfPinnedObject(), irFftHandle.AddrOfPinnedObject());
@@ -86,7 +93,7 @@ namespace LibIR
 
             if(irFft == null)
             {
-                GCHandle irHandle = GCHandle.Alloc(ir, GCHandleType.Pinned);
+                GCHandle irHandle = GCHandle.Alloc(IR, GCHandleType.Pinned);
                 LibIRCore.BlockConvolveFft(ref _data, irHandle.AddrOfPinnedObject(), signalHandle.AddrOfPinnedObject(), outHandle.AddrOfPinnedObject());
                 irHandle.Free();
             }
@@ -118,19 +125,19 @@ namespace LibIR
     {
         public const string LibraryName = "IR";
         
-        [DllImport(LibraryName)]
+        [DllImport(LibraryName, EntryPoint = "create_convolve_data")]
         public static extern ConvolveData CreateConvolveData(ConvolveSchedule schedule, int ir_samples, IRFlags flags);
 
-        [DllImport(LibraryName)]
+        [DllImport(LibraryName, EntryPoint = "free_convolve_data")]
         public static extern void FreeConvolveData(ref ConvolveData data);
 
-        [DllImport(LibraryName)]
+        [DllImport(LibraryName, EntryPoint = "block_convolve")]
         public static extern void BlockConvolve(ref ConvolveData data, IntPtr ir_fft, IntPtr sig, IntPtr @out);
 
-        [DllImport(LibraryName)]
+        [DllImport(LibraryName, EntryPoint = "block_convolve_fft")]
         public static extern void BlockConvolveFft(ref ConvolveData data, IntPtr ir, IntPtr sig, IntPtr @out);
 
-        [DllImport(LibraryName)]
+        [DllImport(LibraryName, EntryPoint = "ir_fft")]
         public static extern void IrFft(ref ConvolveData data, IntPtr ir, IntPtr ir_fft);
     }
 
