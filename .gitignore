@@ -1,3 +1,5 @@
 build/
 dotnettest/
 .cache/
+bin/
+obj/
