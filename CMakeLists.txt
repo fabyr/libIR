@@ -22,10 +22,8 @@ file(GLOB_RECURSE libIR_SRC
 )
 
 add_library(IR SHARED ${libIR_SRC})
+target_link_libraries(IR -lm)
 
 if(DEFINED ENV{SINGLE_PRECISION})
     target_compile_definitions(IR PRIVATE SINGLE_PRECISION)
 endif()
-
-target_link_libraries(IR "${TORCH_LIBRARIES}")
-set_property(TARGET IR PROPERTY CXX_STANDARD 14)
