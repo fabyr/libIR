@@ -8,9 +8,9 @@ namespace LibIR.Examples
     {
         public static void Main(string[] args)
         {
-            const string irFile = "/home/fabyr/Desktop/ir1.wav";
-            const string signalFile = "/home/fabyr/Desktop/sig1.wav";
-            const string outputFile = "/home/fabyr/Desktop/out1.wav";
+            const string irFile = "../test-files/test_ir.wav";
+            const string signalFile = "../test-files/test_signal.wav";
+            const string outputFile = "../test-files/test_output.wav";
 
             SoundFormat irSf, sigSf;
             float[] ir = WaveFile.Read(irFile, out irSf);
