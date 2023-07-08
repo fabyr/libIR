@@ -131,3 +131,5 @@ Add [LibIR.cs](/LibIR.cs) to your project and use the `Convolver`-class from the
 Make sure the C#-Application can find the compiled native C library.
 
 Refer to [Program.cs](/libirsharp.examples/Program.cs) for a demonstrative example.
+
+And make sure that the [/libirsharp/libs](/libirsharp/libs/) folder contains the compiled library before trying to build the dotnet application. (Using the `make-*.sh` script to build will automatically copy the built library to that location)
