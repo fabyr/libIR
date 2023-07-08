@@ -138,7 +138,7 @@ Refer to [Program.cs](/libirsharp.examples/Program.cs) for a demonstrative examp
 And make sure that the [/libirsharp/libs](/libirsharp/libs/) folder contains the compiled library before trying to build the dotnet application. (Using the `make-*.sh` script to build will automatically copy the built library to that location)
 
 ### Generating test-output.wav
-Run the `make-*.sh` script for your corresponding platform and run the `libirsharp.example` application as follows:
+Build *libIR* for your corresponding platform using the provided `make-*.sh` script (see [Building](#building)) and run the `libirsharp.example` application as follows:
 ```
 cd libirsharp.examples/
 dotnet run
