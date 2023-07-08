@@ -127,7 +127,7 @@ This may however affect performance. Ideally, the impulse response only has to b
 ## C#/Dotnet interop
 You can also easily interop with this library from C#. (For example for use in game engines such as `Unity`)
 
-Add [LibIR.cs](/LibIR.cs) to your project and use the `Convolver`-class from the namespace `LibIR`. Or add a project reference to `libirsharp.csproj`.
+Add [LibIR.cs](/libirsharp/LibIR.cs) to your project and use the `Convolver`-class from the namespace `LibIR`. Or add a project reference to `libirsharp.csproj`.
 Make sure the C#-Application can find the compiled native C library.
 
 Refer to [Program.cs](/libirsharp.examples/Program.cs) for a demonstrative example.
