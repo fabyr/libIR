@@ -2,13 +2,19 @@
 Small C-Library for performing convolution reverb
 
 ## Table of contents
-1. [Building](#building)
-2. [Usage](#usage)
-3. [Overview of necessary steps](#overview-of-necessary-steps)
-4. [C#/Dotnet interop](#cdotnet-interop)
+- [Building](#building)
+  - [Linux](#linux)
+  - [Windows](#windows)
+- [Usage](#usage)
+- [Overview of necessary steps](#overview-of-necessary-steps)
+- [C#/Dotnet interop](#cdotnet-interop)
 
 
 ## Building
+You can also use the provided `make-*.sh` scripts to build on linux or windows.
+Make sure you have installed all dependencies.
+
+### Linux
 System dependencies:
 - fftw3
   - Installing on debian/ubuntu based distros: `sudo apt install fftw3-dev`
@@ -22,9 +28,18 @@ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON .. # export compile commands for clangd
 cmake --build . --config Release
 ```
 
+### Windows
 Building on windows is ideally done with MinGW/MSYS2. (see https://www.msys2.org/ and https://www.msys2.org/docs/cmake/)
 
-You can also use the provided `make-*.sh` scripts to build on linux or windows.
+1. Install [FFTW3](http://www.fftw.org/install/windows.html) on Windows
+  - Download `fftw-3.x.x-dll64.zip` (or the 32-bit version)
+  - Extract to `C:\Program Files\fftw3` (create this folder manually)
+  - Add `C:\Program Files\fftw3` to your system-wide PATH
+  - Note: This is for being able to run libIR outside of MinGW/MSYS2
+2. Open a mingw-terminal by searching `MSYS2 MINGW64` in windows
+4. Run `pacman --needed --noconfirm -S mingw-w64-x86_64-toolchain mingw-w64-x86_64-cmake mingw-w64-x86_64-fftw` (note: this installs necessary files for compilation with fftw3)
+5. Run `cd "C:\path\to\this\repository"`
+6. Run `bash make-windows.sh`
 
 ## Usage
 **libIR** performs a partitioned convolution.

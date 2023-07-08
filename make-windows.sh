@@ -6,7 +6,7 @@ cd build
 
 export SINGLE_PRECISION=1
 
-cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+cmake -DCMAKE_SHARED_LINKER_FLAGS="-static-libgcc -static" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
 cmake --build . --config Release
 
 ERRORCODE=$?
