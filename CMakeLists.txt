@@ -12,8 +12,6 @@ else()
     pkg_search_module(FFTW REQUIRED fftw3 IMPORTED_TARGET)
 endif()
 
-link_libraries     (PkgConfig::FFTW)
-
 file(GLOB_RECURSE libIR_SRC
      "src/*.h"
      "src/*.c"
@@ -22,7 +20,10 @@ file(GLOB_RECURSE libIR_SRC
 )
 
 add_library(IR SHARED ${libIR_SRC})
-target_link_libraries(IR -lm)
+target_link_libraries(IR
+    -lm
+    PkgConfig::FFTW
+)
 
 if(DEFINED ENV{SINGLE_PRECISION})
     target_compile_definitions(IR PRIVATE SINGLE_PRECISION)
