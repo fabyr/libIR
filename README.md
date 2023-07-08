@@ -8,6 +8,7 @@ Small C-Library for performing convolution reverb
 - [Usage](#usage)
 - [Overview of necessary steps](#overview-of-necessary-steps)
 - [C#/Dotnet interop](#cdotnet-interop)
+  - [Generating test-output.wav](#generating-test-outputwav)
 
 
 ## Building
@@ -125,6 +126,8 @@ Specifying this flag will calculate the FFT of the impulse response as needed du
 This may however affect performance. Ideally, the impulse response only has to be processed this way once.
 
 ## C#/Dotnet interop
+(You need to have the new [.NET SDK 6](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) installed for the libirsharp projects)
+
 You can also easily interop with this library from C#. (For example for use in game engines such as `Unity`)
 
 Add [LibIR.cs](/libirsharp/LibIR.cs) to your project and use the `Convolver`-class from the namespace `LibIR`. Or add a project reference to `libirsharp.csproj`.
@@ -133,3 +136,13 @@ Make sure the C#-Application can find the compiled native C library.
 Refer to [Program.cs](/libirsharp.examples/Program.cs) for a demonstrative example.
 
 And make sure that the [/libirsharp/libs](/libirsharp/libs/) folder contains the compiled library before trying to build the dotnet application. (Using the `make-*.sh` script to build will automatically copy the built library to that location)
+
+### Generating test-output.wav
+Run the `make-*.sh` script for your corresponding platform and run the `libirsharp.example` application as follows:
+```
+cd libirsharp.examples/
+dotnet run
+```
+If the output is `Done!`, the file [test-files/test-output.wav](/test-files/test_output.wav) has successfully been generated.
+You should ideally save the original `test-output.wav` to be able to compare any
+differences. If everything went right they should be identical.
