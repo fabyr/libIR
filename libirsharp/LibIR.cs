@@ -42,7 +42,7 @@ namespace LibIR
 
             if(!flags.HasFlag(IRFlags.IR_ALLOCATE_FFT_BUFFER))
             {
-                PreprocessFft();
+                CalculateIrFft();
             }
         }
 
@@ -66,7 +66,7 @@ namespace LibIR
             return valid;
         }
 
-        private void PreprocessFft()
+        public void CalculateIrFft()
         {
             irFft = new Complex[_data.fftbuffer_size];
             GCHandle irHandle = GCHandle.Alloc(IR, GCHandleType.Pinned);
@@ -78,15 +78,12 @@ namespace LibIR
             irHandle.Free();
         }
 
-        public float[] ComputeBlock(float[] signal)
+        public void ComputeBlock(float[] signal, int signalIndex, float[] output, int outputIndex)
         {
-            if(signal.Length != BaseBlockSize)
-                throw new ArgumentException($"Signal Length does not match the base block size ({BaseBlockSize})", "signal");
-            
-            Complex[] complexSignal = new Complex[signal.Length];
-            Complex[] complexOut = new Complex[signal.Length];
-            for(int i = 0; i < signal.Length; i++)
-                complexSignal[i].X = signal[i];
+            Complex[] complexSignal = new Complex[BaseBlockSize];
+            Complex[] complexOut = new Complex[BaseBlockSize];
+            for(int i = 0; i < BaseBlockSize; i++)
+                complexSignal[i].X = signal[i + signalIndex];
             
             GCHandle signalHandle = GCHandle.Alloc(complexSignal, GCHandleType.Pinned);
             GCHandle outHandle = GCHandle.Alloc(complexOut, GCHandleType.Pinned);
@@ -106,10 +103,15 @@ namespace LibIR
 
             outHandle.Free();
             signalHandle.Free();
+            
+            for(int i = 0; i < BaseBlockSize; i++)
+                output[i + outputIndex] = complexOut[i].X;
+        }
 
-            float[] @out = new float[signal.Length];
-            for(int i = 0; i < signal.Length; i++)
-                @out[i] = complexOut[i].X;
+        public float[] ComputeBlock(float[] signal, int index = 0)
+        {
+            float[] @out = new float[BaseBlockSize];
+            ComputeBlock(signal, index, @out, 0);
             return @out;
         }
     }
