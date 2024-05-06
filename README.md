@@ -1,5 +1,9 @@
 # libIR
-Small C-Library for performing convolution reverb
+Small C-Library for performing convolution reverb on audio signals. \
+In particular a `partitioned convolution`.
+
+* [Convolution on Wikipedia](https://en.wikipedia.org/wiki/Convolution#Applications)
+* [Convolution Reverb on Wikipedia](https://en.wikipedia.org/wiki/Reverb_effect#Convolution_reverb)
 
 ## Table of contents
 - [Building](#building)
